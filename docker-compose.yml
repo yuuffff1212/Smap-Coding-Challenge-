@@ -10,7 +10,7 @@ services:
     command: /bin/bash -c "python3 /smapdir/dashboard/manage.py runserver 0.0.0.0:8000"
     working_dir: /smapdir
     ports:
-      - 8000:8000
+      - '8000:8000'
     volumes:
       - .:/smapdir
     tty: true
@@ -32,4 +32,4 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     ports:
-      - 3306:3306
+      - '4306:3306'
