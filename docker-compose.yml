@@ -1,0 +1,35 @@
+version: '3'
+
+volumes:
+  db_data:
+
+services:
+  web:
+    container_name: web
+    build: .
+    command: /bin/bash -c "python3 /smapdir/dashboard/manage.py runserver 0.0.0.0:8000"
+    working_dir: /smapdir
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/smapdir
+    tty: true
+    stdin_open: true
+    depends_on:
+      - db
+
+  db:
+    container_name: db
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: smap_consumption
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - 3306:3306
