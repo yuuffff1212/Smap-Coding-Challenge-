@@ -14,6 +14,10 @@ from consumption.models import User, Consumption, Area, Tariff
 class Command(BaseCommand):
     help = 'import data'
 
+    def __init__(self):
+        logging.basicConfig(level=logging.DEBUG)
+        self.logger = logging.getLogger(__name__)
+
     def handle(self, *args, **options):
         self.import_user_data(os.path.join(os.path.dirname(settings.BASE_DIR), 'data', "user_data.csv"))
         self.import_consumption_data(os.path.join(os.path.dirname(settings.BASE_DIR), "data", "consumption/"))
@@ -32,15 +36,15 @@ class Command(BaseCommand):
             user_data_df = pd.read_csv(user_data_path, chunksize=100,
                                        dtype={"id": np.int64, "area": np.object, "tariff": np.object})
             for row in user_data_df:
-                if row["area"] in areas_val:
-                    area[row["area"]] = Area.objects.get(pk=user_areas.id)
+                if row["area"] in areas_val["name"]:
+                    [row["area"]] = Area.objects.get(pk=area_id)
                 if row["tariff"] in tariffs_val:
                     tariff[row["tariff"]] = Tariff.objects.get(pk=user_tariffs.id)
-                user_table = User(id=row["id"], area=area[row["area"]], tariff=tariff[row["tariff"]])
+                user_table = User(id=row["id"], area=[row["area"]], tariff=tariff[row["tariff"]])
                 User.objects.bulk_create(user_table)
-                self.logging.info("Completely user data imported")
+                self.logger.info("Completely user data imported")
         except Exception:
-            self.logging.error("User data already imported")
+            self.logger.error("User data already imported")
 
     def import_consumption_data(self, consumption_data_path):
         """Import Consumption data into the DB"""
@@ -52,6 +56,6 @@ class Command(BaseCommand):
                 aware_time = make_aware(datetime.datetime.strptime(row["datetime"], "%Y-%m-%d %H:%M:%S"))
                 consumption_data_table = Consumption(user=users.id, datetime=aware_time, consumption=row["consumption"])
                 Consumption.objects.bulk_create(consumption_data_table)
-                self.logging.error("Completely Consumption data imported")
+                self.logger.info("Completely Consumption data imported")
         except Exception:
-            self.logging.error("Consumption data already imported")
+            self.logger.error("Consumption data already imported")
