@@ -1,6 +1,6 @@
 ## Smap-Coding-Challenge Report
 
-### development environment
+### Requirement
 - macOS Monterey 12.6
 - Python 3.10
 - Django 4.1
